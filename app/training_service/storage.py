@@ -1,0 +1,26 @@
+import io
+from pathlib import Path
+import boto3
+from PIL import Image
+from .config import settings
+
+s3_client = None
+
+def get_s3_client():
+    global s3_client
+    if s3_client is None:
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_REGION,
+        )
+    return s3_client
+
+def download_image_from_s3(key: str) -> Image.Image:
+    if not settings.S3_BUCKET_NAME:
+        image_data = (Path("uploads") / key).read_bytes()
+    else:
+        response = get_s3_client().get_object(Bucket=settings.S3_BUCKET_NAME, Key=key)
+        image_data = response['Body'].read()
+    return Image.open(io.BytesIO(image_data))

@@ -1,0 +1,12 @@
+Things to implement:
+
+Inference (user facing) (online service)
+1. /scan endpoint which use to detect and extract data from QR code.
+2. If QR code detection sucessful, save the data to DB along with the image on S3 with Detect_successful = true in DB.
+3. If Detection fails, then use OCR model to extract data on QR code sticker and save that data on DB along with the image on S3 with Detect_successful = false in DB and OCR_successful = True
+4. If OCR fails then save the image in S3 and mark OCR_successful = False in DB. This data can be manually labelled or we can VLMs.
+
+Training Service (offline service)
+1. Fetch all images data from the date the model is trained. This will be new data to fine tune our model where OCR is successful, if automated run is being done.
+2. Split the data in 80/20 ratio as train/test split. Finetune the HF model.
+3. Compute the metrics. If metrics show improvement then model is pushed to prod to be used in OCR service.
